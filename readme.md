@@ -1,5 +1,7 @@
 # WordPressAdmin Algorythm
 
+A Safari Extension to take the user to the WordPress Login page for the current active tab, [hopefully] if it exists.
+
 ### On page load:
 
 - Disable button
