@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Author</key>
+	<string>Sam Davis</string>
+	<key>Builder Version</key>
+	<string>11601.7.4</string>
+	<key>CFBundleDisplayName</key>
+	<string>WordPressAdminExtension</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.sjd.wordpressadminextension</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0</string>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Global Page</key>
+		<string>index.html</string>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Identifier</key>
+				<string>OpenWordPressAdmin</string>
+				<key>Image</key>
+				<string>icon.png</string>
+				<key>Include By Default</key>
+				<true/>
+				<key>Label</key>
+				<string>OpenWordPressAdmin</string>
+				<key>Palette Label</key>
+				<string>OpenWordPressAdmin</string>
+				<key>Tool Tip</key>
+				<string>Open WordPress Admin Page</string>
+			</dict>
+		</array>
+	</dict>
+	<key>Description</key>
+	<string>Simple Safari Extension to open the current page's wordpress admin url</string>
+	<key>DeveloperIdentifier</key>
+	<string>N5B3FJPB8K</string>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Permissions</key>
+	<dict>
+		<key>Website Access</key>
+		<dict>
+			<key>Include Secure Pages</key>
+			<true/>
+			<key>Level</key>
+			<string>All</string>
+		</dict>
+	</dict>
+	<key>Website</key>
+	<string>http://sjd.co</string>
+</dict>
+</plist>

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>WordPress Admin</title>
+    </head>
+    <body>
+
+
+        <script>
+            function loadAdminPage(event) {
+                if (event.command == "OpenWordPressAdmin") {
+                    // This is where we know that MY button has been clicked...
+
+                    // Get current window
+                    var currentWindow = safari.application.activeBrowserWindow;
+
+                    // Get current tab in window
+                    var currentTab = currentWindow.activeTab;
+
+                    // Set the url of the current tab
+                    currentTab.url = currentTab.url + 'wp-admin';
+                }
+            }
+            safari.application.addEventListener("command", loadAdminPage, false);
+        </script>
+    </body>
+</html>
