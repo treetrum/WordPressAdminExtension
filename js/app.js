@@ -35,8 +35,14 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     * @return boolean
     */
     function websiteIsWordPress() {
-        // TODO: Build this...
+
+        // Get contents of webpage
+        var contents = $('body').html();
+
+        alert(contents);
+
         return true;
+
     }
 
     /**
