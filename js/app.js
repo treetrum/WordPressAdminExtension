@@ -37,9 +37,9 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     function websiteIsWordPress() {
 
         // Get contents of webpage
-        var contents = $('body').html();
+        // var contents = $('body').html();
 
-        alert(contents);
+        // alert(contents);
 
         return true;
 
