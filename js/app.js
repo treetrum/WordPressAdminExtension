@@ -32,16 +32,23 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
 
     /**
     * Work out if site is on WordPress or not.
-    * @return boolean
+    * Runs a callback with a boolean as the only parameter if the site is WordPress or Not.
     */
-    function websiteIsWordPress() {
+    function websiteIsWordPress(callback) {
 
-        // Get contents of webpage
-        // var contents = $('body').html();
+        // TODO: Only do the get request if we haven't already worked this out...
 
-        // alert(contents);
+        $.get(getCurrentUrl(), function(data) {
 
-        return true;
+            var onWordPress = false;
+            if (data.search("wp-content") >= 0) {
+                onWordPress = true;
+            }
+            if (onWordPress) {
+                callback(onWordPress);
+            }
+
+        });
 
     }
 
@@ -93,14 +100,18 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
         getMyButton().disabled = true;
 
         // Find admin URL
-        if (websiteIsWordPress()) {
+        websiteIsWordPress(function(isWordPress) {
 
-            savedAdminUrl = getAdminUrl();
-            if (savedAdminUrl) {
-                getMyButton().disabled = false;
+            if (isWordPress) {
+                savedAdminUrl = getAdminUrl();
+                if (savedAdminUrl) {
+                    getMyButton().disabled = false;
+                }
+            } else {
+                // The website is not wordpress...
             }
 
-        }
+        });
 
     }
     main();
