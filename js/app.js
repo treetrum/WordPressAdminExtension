@@ -9,12 +9,6 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     /** Vars */
     var buttonIdentifier = "OpenWordPressAdmin";
 
-    // var myButton = getMyButton();
-    var currentWindow = safari.application.activeBrowserWindow;
-    var currentTab = currentWindow.activeTab;
-
-    var savedAdminUrl;
-
     /**
     * Get reference to a button using the buttonIdentifier variable
     * @return button
@@ -24,7 +18,6 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
         for (var i = 0; i < itemArray.length; ++i) {
             var item = itemArray[i];
             if (item.identifier == buttonIdentifier) {
-                /* Do something. */
                 return item;
             }
         }
@@ -36,19 +29,23 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     */
     function websiteIsWordPress(callback) {
 
-        // TODO: Only do the get request if we haven't already worked this out...
+        // Check if we have an adminURL saved already for this site...
+        if (localStorage.getItem(getBaseDomainName())) {
+            var onWordPress = true;
+            callback(onWordPress);
 
-        $.get(getCurrentUrl(), function(data) {
-
-            var onWordPress = false;
-            if (data.search("wp-content") >= 0) {
-                onWordPress = true;
-            }
-            if (onWordPress) {
-                callback(onWordPress);
-            }
-
-        });
+        // Else, check it manually...
+        } else {
+            $.get(getCurrentUrl(), function(data) {
+                var onWordPress = false;
+                if (data.search("wp-content") >= 0) {
+                    onWordPress = true;
+                }
+                if (onWordPress) {
+                    callback(onWordPress);
+                }
+            });
+        }
 
     }
 
@@ -57,7 +54,7 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     * @return string
     */
     function getCurrentUrl() {
-        return currentTab.url;
+        return getCurrentTab().url;
     }
 
     /**
@@ -83,18 +80,36 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     * Gets admin URL for the current site
     * @return string Complete Admin URL
     */
-    function getAdminUrl() {
+    function getAdminUrl(callback) {
         // TODO: Build this...
-        return getBaseDomainName() + '/wp-admin';
+
+        if (localStorage.getItem(getBaseDomainName())) {
+            return localStorage.getItem(getBaseDomainName());
+        } else {
+            return getBaseDomainName() + '/wp-admin';
+        }
+    }
+
+    /**
+    * Gets the current tab
+    * @return Object current tab Object
+    */
+    function getCurrentTab() {
+        var currentWindow = safari.application.activeBrowserWindow;
+        var currentTab = currentWindow.activeTab;
+        return currentTab;
+    }
+
+    /**
+    * Saves the supplied url to local storage using the baseDomain of the current site...
+    */
+    function saveAdminUrl(adminUrl) {
+        localStorage.setItem(getBaseDomainName(), adminUrl);
     }
 
     // PAGE LOAD LOGIC
     // - The main logic of the extension
     function main() {
-
-        // Get current tab and window
-        currentWindow = safari.application.activeBrowserWindow;
-        currentTab = currentWindow.activeTab;
 
         // Disable button until we know it will work...
         getMyButton().disabled = true;
@@ -103,19 +118,19 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
         websiteIsWordPress(function(isWordPress) {
 
             if (isWordPress) {
-                savedAdminUrl = getAdminUrl();
-                if (savedAdminUrl) {
+                var adminUrl = getAdminUrl();
+
+                if (adminUrl) {
+                    // Save URL
+                    saveAdminUrl(adminUrl);
                     getMyButton().disabled = false;
                 }
+
             } else {
                 // The website is not wordpress...
             }
-
         });
-
     }
-    main();
-
 
     /**
     * Main page redirect funcitonality.
@@ -123,8 +138,13 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     * @param event
     */
     function loadAdminPage(event) {
-        currentTab.url = savedAdminUrl;
+        getCurrentTab().url = getAdminUrl();
     }
+
+
+    /////////////////////
+    // EVENT LISTENERS //
+    /////////////////////
 
     // Listen for the button being clicked
     safari.application.addEventListener("command", loadAdminPage, true);
@@ -132,6 +152,5 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     // Listen for new tab being brought to the foreground, then run the main logic
     safari.application.addEventListener("activate", main, true);
     safari.application.addEventListener("navigate", main, true);
-
 
 })(sjdWordPressAdmin);
