@@ -86,6 +86,22 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
         if (localStorage.getItem(getBaseDomainName())) {
             return localStorage.getItem(getBaseDomainName());
         } else {
+
+            // Strip off parameters from url, save to currentTestUrl
+
+            // While currentTestUrl != getBaseDomainName
+
+                // Do a synchonous get request to currentTestUrl + /wp-admin to
+
+                // if we get a 404
+                    // Remove another level of subdirectories...
+                // else
+                    // Break
+
+            // endwhile
+
+            // return currentTestUrl + /wp-admin
+
             return getBaseDomainName() + '/wp-admin';
         }
     }
