@@ -30,7 +30,7 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     function websiteIsWordPress(callback) {
 
         // Check if we have an adminURL saved already for this site...
-        if (localStorage.getItem(getBaseDomainName())) {
+        if (sessionStorage.getItem(getBaseDomainName())) {
             var onWordPress = true;
             callback(onWordPress);
 
@@ -76,34 +76,88 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
         return getProtocol() + "://" + subdirectoriesRemoved;
     }
 
+    function removeURLParams(url) {
+        var n = url.indexOf('?');
+        let newURL = url.substring(0, n != -1 ? n : url.length);
+        return newURL;
+    }
+
+    function removeLastURLComponent(url) {
+
+        // Remove trailing slash if there is one
+        if (url[url.length-1] == '/') {
+            url = url.replace(/\/+$/, '');
+        }
+
+        // Split URL at '/'
+        let splitURL = url.split('/');
+
+        // Remove the last component
+        splitURL.pop();
+
+        // Join it back together
+        let joinedURL = splitURL.join('/');
+
+        // Return it
+        return joinedURL;
+    }
+
+    function removeTrailingSlash(url) {
+        if (url[url.length-1] == '/') {
+            url = url.replace(/\/+$/, '');
+        }
+        return url;
+    }
+
+    function findWPAdminURL(url, recurseCount = 0) {
+
+        url = removeTrailingSlash(url);
+        url = removeURLParams(url);
+        let urlToTest = url + '/wp-login.php';
+
+        return new Promise(function(resolve, reject) {
+            if (recurseCount > 10) {
+                reject('Too many recursions');
+            }
+            axios.get(urlToTest)
+                .then(function (response) {
+                    resolve({found: true, url: urlToTest, base: url});
+                })
+                .catch(function (error) {
+                    resolve({found: false, url: urlToTest, base: url});
+                });
+        })
+            .then(function(result) {
+                if (result.found) {
+                    return {url: result.url, base: url};
+                } else {
+                    return findWPAdminURL(removeLastURLComponent(url), recurseCount+1);
+                }
+            });
+
+    }
+
     /**
     * Gets admin URL for the current site
     * @return string Complete Admin URL
     */
-    function getAdminUrl(callback) {
-        // TODO: Build this...
+    function getAdminUrl(base = false) {
 
-        if (localStorage.getItem(getBaseDomainName())) {
-            return localStorage.getItem(getBaseDomainName());
-        } else {
+        base = base || getBaseDomainName();
 
-            // Strip off parameters from url, save to currentTestUrl
-
-            // While currentTestUrl != getBaseDomainName
-
-                // Do a synchonous get request to currentTestUrl + /wp-admin to
-
-                // if we get a 404
-                    // Remove another level of subdirectories...
-                // else
-                    // Break
-
-            // endwhile
-
-            // return currentTestUrl + /wp-admin
-
-            return getBaseDomainName() + '/wp-admin';
-        }
+        return new Promise(function(resolve, reject) {
+            if (base && sessionStorage.getItem(base)) {
+                resolve({url: sessionStorage.getItem(base), base: base})
+            } else {
+                findWPAdminURL(getCurrentUrl())
+                    .then(function(url) {
+                        resolve(url);
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                    });
+            }
+        });
     }
 
     /**
@@ -120,7 +174,7 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     * Saves the supplied url to local storage using the baseDomain of the current site...
     */
     function saveAdminUrl(adminUrl) {
-        localStorage.setItem(getBaseDomainName(), adminUrl);
+        sessionStorage.setItem(getBaseDomainName(), adminUrl);
     }
 
     // PAGE LOAD LOGIC
@@ -134,13 +188,16 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
         websiteIsWordPress(function(isWordPress) {
 
             if (isWordPress) {
-                var adminUrl = getAdminUrl();
-
-                if (adminUrl) {
-                    // Save URL
-                    saveAdminUrl(adminUrl);
-                    getMyButton().disabled = false;
-                }
+                getAdminUrl()
+                    .then(({url, base}) => {
+                        if (url) {
+                            // Save URL
+                            sessionStorage.setItem(base, url);
+                            // saveAdminUrl(url);
+                            $(getMyButton()).data('base', base);
+                            getMyButton().disabled = false;
+                        }
+                    });
 
             } else {
                 // The website is not wordpress...
@@ -154,7 +211,11 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
     * @param event
     */
     function loadAdminPage(event) {
-        getCurrentTab().url = getAdminUrl();
+        let base = $(getMyButton()).data('base');
+        getAdminUrl(base).
+            then(({url}) => {
+                getCurrentTab().url = url;
+            });
     }
 
 
