@@ -113,7 +113,7 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
 
         url = removeTrailingSlash(url);
         url = removeURLParams(url);
-        let urlToTest = url + '/wp-login.php';
+        let urlToTest = url + '/wp-admin';
 
         return new Promise(function(resolve, reject) {
             if (recurseCount > 10) {
