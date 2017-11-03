@@ -8,6 +8,7 @@ var sjdWordPressAdmin = sjdWordPressAdmin || {};
 
     /** Vars */
     var buttonIdentifier = "OpenWordPressAdmin";
+    var baseURI = safari.extension.baseURI;
 
     /**
     * Get reference to a button using the buttonIdentifier variable
